@@ -1,0 +1,35 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: AuthenticationService
+  datasource:
+    url: jdbc:mysql://localhost:3306/authentication_db?createDatabaseIfNotExist=true
+    username: root
+    password: krishna
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: XXXXXXXXXXXXX # Replace with your email address
+    password: XXXXXXXXXXXX # Replace with your email credentials
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+logging:
+  level:
+    spring:
+      security: DEBUG
+
+app:
+  jwt-secret: JWTSecreteKey
+  jwt-expiration-milliseconds: 3600000 # 1 hour in milliseconds
