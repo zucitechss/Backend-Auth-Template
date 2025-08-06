@@ -82,4 +82,15 @@ public class AuthController {
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
+
+    @Operation(summary = "Refresh JWT token", description = "Generates a new access token using a valid refresh token")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid or expired refresh token")
+    })
+    @PostMapping("/refresh-token")
+    public ResponseEntity<JWTAuthResponse> refreshToken(@RequestParam String refreshToken) {
+        JWTAuthResponse response = authService.refreshToken(refreshToken);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

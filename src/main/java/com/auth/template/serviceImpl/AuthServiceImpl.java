@@ -53,10 +53,9 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUserNameOrEmail(userName, userName).orElseThrow(() -> new UsernameNotFoundException("User not found with username or email :" + userName));
-        String token = jwtTokenProvider.generateToken(authentication);
-        // Return JWTAuthResponse with all constructor parameters
-        return new JWTAuthResponse(token, "Bearer", user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, true);
-
+        String accessToken = jwtTokenProvider.generateToken(authentication);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+        return new JWTAuthResponse(accessToken, refreshToken, "Bearer", user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, true);
     }
 
     @Override
@@ -148,6 +147,24 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         return "Password reset successfully!";
     }
+
+    @Override
+    public JWTAuthResponse refreshToken(String refreshToken) {
+        // Validate the refresh token
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+            throw new IllegalArgumentException("Invalid or expired refresh token");
+        }
+        // Extract username/email from the refresh token
+        String userNameOrEmail = jwtTokenProvider.getUserNameFromJWT(refreshToken);
+        User user = userRepository.findByUserNameOrEmail(userNameOrEmail, userNameOrEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email: " + userNameOrEmail));
+        // Generate a new access token
+        String newAccessToken = jwtTokenProvider.generateTokenFromUser(user);
+        // Optionally, generate a new refresh token (recommended for security)
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+        return new JWTAuthResponse(newAccessToken, newRefreshToken, "Bearer", user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, true);
+    }
+
 
     private String generateOtp() {
         SecureRandom random = new SecureRandom();

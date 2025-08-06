@@ -14,7 +14,7 @@ public class EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("Signup Successful");
-        message.setText("Hello " + username + ",\n\nYour signup was successful!");
+        message.setText("Hello " + username + ",\n\nYour signup is successful!");
         try {
             mailSender.send(message);
         } catch (Exception ex) {

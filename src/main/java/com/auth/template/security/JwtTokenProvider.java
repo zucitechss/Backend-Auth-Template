@@ -1,5 +1,6 @@
 package com.auth.template.security;
 
+import com.auth.template.entity.User;
 import com.auth.template.exception.AuthException;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,8 @@ public class JwtTokenProvider {
     private String jwtSecret;
     @Value("${app.jwt-expiration-milliseconds}")
     private int jwtExpirationInMs;
+    @Value("${app.jwt-refresh-expiration-milliseconds}")
+    private int jwtRefreshExpirationInMs;
 
     public String generateToken(Authentication authentication) {
         String userName = authentication.getName();
@@ -50,5 +53,38 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException ex) {
             throw new AuthException(HttpStatus.BAD_REQUEST, "JWT Claims string is empty.");
         }
+    }
+
+    public String generateRefreshToken(User user) {
+        Date currentDate = new Date();
+        Date expireDate = new Date(currentDate.getTime() + jwtRefreshExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(user.getUserName())
+                .setIssuedAt(currentDate)
+                .setExpiration(expireDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    public boolean validateRefreshToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+            return true;
+        } catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    public String generateTokenFromUser(User user) {
+        Date currentDate = new Date();
+        Date expireDate = new Date(currentDate.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(user.getUserName())
+                .setIssuedAt(currentDate)
+                .setExpiration(expireDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
     }
 }

@@ -1,9 +1,7 @@
 package com.auth.template.payload;
 
 import com.auth.template.entity.Role;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Set;
@@ -13,6 +11,7 @@ import java.util.UUID;
 @Setter
 public class JWTAuthResponse {
     private String accessToken;
+    private String refreshToken;
     private String tokenType = "Bearer";
     private UUID id;
     private String userName;
@@ -23,8 +22,9 @@ public class JWTAuthResponse {
     private boolean isActive;
     private boolean isVerified;
 
-    public JWTAuthResponse(String accessToken, String tokenType, UUID id, String userName, String email, String firstName, String lastName, Set<Role> roles, boolean isActive, boolean isVerified) {
+    public JWTAuthResponse(String accessToken, String refreshToken, String tokenType, UUID id, String userName, String email, String firstName, String lastName, Set<Role> roles, boolean isActive, boolean isVerified) {
         this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.tokenType = tokenType;
         this.id = id;
         this.userName = userName;

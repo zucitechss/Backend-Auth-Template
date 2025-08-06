@@ -16,7 +16,7 @@ public interface AuthService {
 
     String resetPassword(ResetPasswordRequest resetPasswordRequest);
 
-//    String refreshToken(String refreshToken);
+    JWTAuthResponse refreshToken(String refreshToken);
 //
 //    void logout(String refreshToken);
 //

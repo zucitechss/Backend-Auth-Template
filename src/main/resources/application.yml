@@ -17,8 +17,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: XXXXXXXXXXXXX # Replace with your email address
-    password: XXXXXXXXXXXX # Replace with your email credentials
+    username: XXXXXXXXXXXX # Replace with your actual email
+    password: XXXXXXXXXXXX # Replace with your actual password
     properties:
       mail:
         smtp:
@@ -33,3 +33,4 @@ logging:
 app:
   jwt-secret: JWTSecreteKey
   jwt-expiration-milliseconds: 3600000 # 1 hour in milliseconds
+  jwt-refresh-expiration-milliseconds: 86400000 # 1 day in milliseconds
