@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"userName"}), @UniqueConstraint(columnNames = {"email"})})
-public class User extends TimestampedEntity{
+public class  User extends TimestampedEntity{
     @Id
     private UUID id = UUID.randomUUID();
     @Column(unique = true, nullable = false)
@@ -25,8 +25,21 @@ public class User extends TimestampedEntity{
     private String lastName;
     private boolean emailVerified;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
     private Set<Role> roles;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "user_permissions",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "permission_id", referencedColumnName = "id")
+    )
+    private Set<Permission> permissions;
+
     private String resetOtp;
     private LocalDateTime resetOtpExpiry;
 }

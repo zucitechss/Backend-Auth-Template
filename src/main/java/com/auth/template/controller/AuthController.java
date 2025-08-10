@@ -93,4 +93,20 @@ public class AuthController {
         JWTAuthResponse response = authService.refreshToken(refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @Operation(summary = "Add permission to user", description = "Adds or removes permissions for a user")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Permission updated successfully"),
+        @ApiResponse(responseCode = "404", description = "User or permission not found")
+    })
+    @PostMapping("/addPermission")
+    public ResponseEntity<Response> addPermissionToUser(@RequestBody @Valid PermissionUpdateRequest permissionUpdateRequest) {
+         String statusMsg = authService.addPermissionToUser(permissionUpdateRequest);
+          return ResponseEntity
+                 .status(HttpStatus.OK)
+                 .body(Response.builder()
+                            .statusMsg(statusMsg)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
+    }
 }

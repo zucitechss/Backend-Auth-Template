@@ -1,6 +1,7 @@
 package com.auth.template.service;
 
 import com.auth.template.payload.JWTAuthResponse;
+import com.auth.template.payload.PermissionUpdateRequest;
 import com.auth.template.payload.ResetPasswordRequest;
 import com.auth.template.payload.RoleUpdateRequest;
 import com.auth.template.payload.SignInDTO;
@@ -17,10 +18,6 @@ public interface AuthService {
     String resetPassword(ResetPasswordRequest resetPasswordRequest);
 
     JWTAuthResponse refreshToken(String refreshToken);
-//
-//    void logout(String refreshToken);
-//
-//    void verifyEmail(String token);
-//
-//    void resendVerificationEmail(String email);
+
+    String addPermissionToUser(PermissionUpdateRequest permissionUpdateRequest);
 }

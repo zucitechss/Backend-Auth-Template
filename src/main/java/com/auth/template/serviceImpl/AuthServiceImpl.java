@@ -1,12 +1,10 @@
 package com.auth.template.serviceImpl;
 
+import com.auth.template.entity.Permission;
 import com.auth.template.entity.Role;
 import com.auth.template.entity.User;
-import com.auth.template.payload.JWTAuthResponse;
-import com.auth.template.payload.RoleUpdateRequest;
-import com.auth.template.payload.SignInDTO;
-import com.auth.template.payload.SignUpDTO;
-import com.auth.template.payload.ResetPasswordRequest;
+import com.auth.template.payload.*;
+import com.auth.template.repository.PermissionRepository;
 import com.auth.template.repository.RoleRepository;
 import com.auth.template.repository.UserRepository;
 import com.auth.template.security.JwtTokenProvider;
@@ -35,16 +33,18 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
+    private final PermissionRepository permissionRepository;
 
     private static final int OTP_LENGTH = 6;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, EmailService emailService) {
+    public AuthServiceImpl(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, EmailService emailService,PermissionRepository permissionRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.emailService = emailService;
+        this.permissionRepository = permissionRepository;
     }
 
     @Override
@@ -82,6 +82,10 @@ public class AuthServiceImpl implements AuthService {
 
         Role roles = roleRepository.findByName("ROLE_EMPLOYEE").orElseThrow(() -> new UsernameNotFoundException("Role not found with name: ROLE_EMPLOYEE"));
         user.setRoles(Collections.singleton(roles));
+
+        Permission defaultPermission = permissionRepository.findByName("DEFAULT_PERMISSION").orElseThrow(() -> new UsernameNotFoundException("Permission not found with name: DEFAULT_PERMISSION"));
+        user.setPermissions(Collections.singleton(defaultPermission));
+
         userRepository.save(user);
         emailService.sendSignupSuccessEmail(signUpDTO.getEmail(), signUpDTO.getUsername());
         return "User registered successfully!";
@@ -95,6 +99,7 @@ public class AuthServiceImpl implements AuthService {
         roleUpdateRequest.getRoles().forEach(roleName -> {
             Role role = roleRepository.findByName(roleName.getName())
                     .orElseThrow(() -> new UsernameNotFoundException("Role not found with name: " + roleName));
+            roleRepository.save(role);
             addedRole.add(role);
         });
 
@@ -116,11 +121,38 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public String addPermissionToUser(PermissionUpdateRequest permissionUpdateRequest) {
+        Set<Permission> addedPermissions = new HashSet<>();
+        User user = userRepository.findByUserName(permissionUpdateRequest.getUserName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with userName: " + permissionUpdateRequest.getUserName()));
+        permissionUpdateRequest.getPermissions().forEach(permissionName -> {
+            Permission permission = permissionRepository.findByName(permissionName.getName())
+                    .orElseThrow(() -> new UsernameNotFoundException("Permission not found with name: " + permissionName));
+            permissionRepository.save(permission);
+            addedPermissions.add(permission);
+        });
+
+        switch (permissionUpdateRequest.getAction()) {
+            case "ADD":
+                user.setPermissions(addedPermissions);
+                userRepository.save(user);
+                return "Permission(s) added successfully!";
+            case "REMOVE":
+                addedPermissions.stream()
+                        .filter(p -> !user.getPermissions().remove(p))
+                        .collect(Collectors.toSet());
+                userRepository.save(user);
+                return "Permission(s) removed successfully!";
+            default:
+                throw new IllegalArgumentException("Invalid action type: " + permissionUpdateRequest.getAction());
+        }
+    }
+
+    @Override
     public String resetPassword(ResetPasswordRequest resetPasswordRequest) {
         User user = userRepository.findByEmail(resetPasswordRequest.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + resetPasswordRequest.getEmail()));
 
-        // If OTP and newPassword are not provided, generate and send OTP
         if (resetPasswordRequest.getOtp() == null || resetPasswordRequest.getOtp().isEmpty()) {
             String otp = generateOtp();
             user.setResetOtp(otp);
@@ -130,7 +162,6 @@ public class AuthServiceImpl implements AuthService {
             return "OTP sent to your email address.";
         }
 
-        // If OTP is provided, verify and reset password
         if (user.getResetOtp() == null || user.getResetOtpExpiry() == null ||
                 LocalDateTime.now().isAfter(user.getResetOtpExpiry())) {
             return "OTP expired or not requested.";
@@ -150,17 +181,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JWTAuthResponse refreshToken(String refreshToken) {
-        // Validate the refresh token
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("Invalid or expired refresh token");
         }
-        // Extract username/email from the refresh token
         String userNameOrEmail = jwtTokenProvider.getUserNameFromJWT(refreshToken);
         User user = userRepository.findByUserNameOrEmail(userNameOrEmail, userNameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email: " + userNameOrEmail));
-        // Generate a new access token
         String newAccessToken = jwtTokenProvider.generateTokenFromUser(user);
-        // Optionally, generate a new refresh token (recommended for security)
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
         return new JWTAuthResponse(newAccessToken, newRefreshToken, "Bearer", user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, true);
     }
