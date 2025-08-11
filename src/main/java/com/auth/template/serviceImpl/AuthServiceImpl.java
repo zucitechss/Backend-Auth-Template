@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUserNameOrEmail(userName, userName).orElseThrow(() -> new UsernameNotFoundException("User not found with username or email :" + userName));
         String accessToken = jwtTokenProvider.generateToken(authentication);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
-        return new JWTAuthResponse(accessToken, refreshToken, "Bearer", user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, true);
+        return new JWTAuthResponse(accessToken,refreshToken,user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, user.isEmailVerified(), user.getPermissions());
     }
 
     @Override
@@ -83,7 +83,7 @@ public class AuthServiceImpl implements AuthService {
         Role roles = roleRepository.findByName("ROLE_EMPLOYEE").orElseThrow(() -> new UsernameNotFoundException("Role not found with name: ROLE_EMPLOYEE"));
         user.setRoles(Collections.singleton(roles));
 
-        Permission defaultPermission = permissionRepository.findByName("DEFAULT_PERMISSION").orElseThrow(() -> new UsernameNotFoundException("Permission not found with name: DEFAULT_PERMISSION"));
+        Permission defaultPermission = permissionRepository.findByName("default_permission").orElseThrow(() -> new UsernameNotFoundException("Permission not found with name: default_permission"));
         user.setPermissions(Collections.singleton(defaultPermission));
 
         userRepository.save(user);
@@ -136,13 +136,13 @@ public class AuthServiceImpl implements AuthService {
             case "ADD":
                 user.setPermissions(addedPermissions);
                 userRepository.save(user);
-                return "Permission(s) added successfully!";
+                return "Permission added successfully!";
             case "REMOVE":
                 addedPermissions.stream()
                         .filter(p -> !user.getPermissions().remove(p))
                         .collect(Collectors.toSet());
                 userRepository.save(user);
-                return "Permission(s) removed successfully!";
+                return "Permission removed successfully!";
             default:
                 throw new IllegalArgumentException("Invalid action type: " + permissionUpdateRequest.getAction());
         }
@@ -189,7 +189,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email: " + userNameOrEmail));
         String newAccessToken = jwtTokenProvider.generateTokenFromUser(user);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
-        return new JWTAuthResponse(newAccessToken, newRefreshToken, "Bearer", user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, true);
+        return new JWTAuthResponse(newAccessToken, newRefreshToken, user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, user.isEmailVerified(), user.getPermissions());
     }
 
 

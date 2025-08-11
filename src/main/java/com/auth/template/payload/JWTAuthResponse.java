@@ -1,5 +1,6 @@
 package com.auth.template.payload;
 
+import com.auth.template.entity.Permission;
 import com.auth.template.entity.Role;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,11 +22,13 @@ public class JWTAuthResponse {
     private Set<Role> roles;
     private boolean isActive;
     private boolean isVerified;
+    private Set<Permission> permissions;
 
-    public JWTAuthResponse(String accessToken, String refreshToken, String tokenType, UUID id, String userName, String email, String firstName, String lastName, Set<Role> roles, boolean isActive, boolean isVerified) {
+    public JWTAuthResponse(String accessToken, String refreshToken, UUID id, String userName, String email,
+                           String firstName, String lastName, Set<Role> roles, boolean isActive,
+                           boolean isVerified, Set<Permission> permissions) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        this.tokenType = tokenType;
         this.id = id;
         this.userName = userName;
         this.email = email;
@@ -34,6 +37,7 @@ public class JWTAuthResponse {
         this.roles = roles;
         this.isActive = isActive;
         this.isVerified = isVerified;
+        this.permissions = permissions;
     }
 
     public JWTAuthResponse() {

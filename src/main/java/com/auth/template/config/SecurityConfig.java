@@ -56,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers("/api/users")
                         .access(new WebExpressionAuthorizationManager(
-                            "hasAnyAuthority('VIEW_PERMISSION', 'EDIT_PERMISSION', 'DELETE_PERMISSION')"
+                            "hasAnyAuthority('user_view', 'user_edit', 'user_delete')"
                         ))
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
