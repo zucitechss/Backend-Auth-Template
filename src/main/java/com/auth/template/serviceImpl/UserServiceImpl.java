@@ -3,6 +3,7 @@ package com.auth.template.serviceImpl;
 import com.auth.template.entity.Permission;
 import com.auth.template.entity.Role;
 import com.auth.template.entity.User;
+import com.auth.template.payload.UserDTO;
 import com.auth.template.repository.PermissionRepository;
 import com.auth.template.repository.RoleRepository;
 import com.auth.template.repository.UserRepository;
@@ -34,13 +35,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(UUID id, User updatedUser) {
+    public User updateUser(UUID id, UserDTO updatedUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
         user.setFirstName(updatedUser.getFirstName());
         user.setLastName(updatedUser.getLastName());
         user.setEmail(updatedUser.getEmail());
-        user.setUserName(updatedUser.getUserName());
+        user.setUserName(updatedUser.getUsername());
 
         if (updatedUser.getRoles() != null && !updatedUser.getRoles().isEmpty()) {
             Set<Role> validRoles = new HashSet<>();

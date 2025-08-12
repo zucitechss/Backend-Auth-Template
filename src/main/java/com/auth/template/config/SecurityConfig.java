@@ -40,9 +40,9 @@ public class SecurityConfig {
     public static final String[] PUBLIC_URLS = {
             "/actuator/health",
             "/api/auth/register",
-            "/api/auth/signup",
+            "/api/auth/reset-password",
             "/api/auth/login",
-            "/api/auth/signin",
+            "/api/auth/refresh-token",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",

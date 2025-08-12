@@ -1,6 +1,7 @@
 package com.auth.template.payload;
 
 import com.auth.template.entity.Role;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,9 @@ import java.util.Set;
 @Setter
 @Builder
 public class RoleUpdateRequest {
+    @NotEmpty(message = "This field is required it can not be empty")
     private String action;
+    @NotEmpty(message = "This field is required it can not be empty")
     private String userName;
     private Set<Role> roles;
 }

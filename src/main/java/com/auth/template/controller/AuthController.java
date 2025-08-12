@@ -27,7 +27,7 @@ public class AuthController {
         @ApiResponse(responseCode = "201", description = "User registered successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    @PostMapping(value = {"/register", "/signup"})
+    @PostMapping(value = {"/register"})
     public ResponseEntity<Response> registerUser(@RequestBody @Valid SignUpDTO signUpDTO) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -42,7 +42,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "Login successful"),
         @ApiResponse(responseCode = "401", description = "Invalid credentials")
     })
-    @PostMapping(value = {"/login", "/signin"})
+    @PostMapping(value = {"/login"})
     public ResponseEntity<JWTAuthResponse> signIn(@RequestBody @Valid SignInDTO signInDTO) {
         return ResponseEntity
                 .status(HttpStatus.OK)

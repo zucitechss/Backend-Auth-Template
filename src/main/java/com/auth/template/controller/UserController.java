@@ -1,6 +1,7 @@
 package com.auth.template.controller;
 
 import com.auth.template.entity.User;
+import com.auth.template.payload.UserDTO;
 import com.auth.template.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @PutMapping("/api/users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable UUID id, @RequestBody User updatedUser) {
+    public ResponseEntity<?> updateUser(@PathVariable UUID id, @RequestBody UserDTO updatedUser) {
         try {
             User user = userService.updateUser(id, updatedUser);
             return ResponseEntity.ok(user);
