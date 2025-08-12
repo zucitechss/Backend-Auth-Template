@@ -38,12 +38,15 @@ public class SecurityConfig {
     }
 
     public static final String[] PUBLIC_URLS = {
-        "/actuator/health",
-        "/api/auth/**",
-        "/swagger-ui/**",
-        "/swagger-ui.html",
-        "/v3/api-docs/**",
-        "/v3/api-docs.yaml"
+            "/actuator/health",
+            "/api/auth/register",
+            "/api/auth/signup",
+            "/api/auth/login",
+            "/api/auth/signin",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml"
     };
 
     @Bean
@@ -54,9 +57,11 @@ public class SecurityConfig {
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers("/api/auth/addPermission", "/api/auth/addRole", "/api/auth/getAllRoles", "/api/auth/getAllPermissions")
+                        .hasRole("ADMIN")
                         .requestMatchers("/api/users")
                         .access(new WebExpressionAuthorizationManager(
-                            "hasAnyAuthority('user_view', 'user_edit', 'user_delete')"
+                                "hasAnyAuthority('user_view', 'user_edit', 'user_delete')"
                         ))
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))

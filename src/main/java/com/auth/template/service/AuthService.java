@@ -6,18 +6,23 @@ import com.auth.template.payload.ResetPasswordRequest;
 import com.auth.template.payload.RoleUpdateRequest;
 import com.auth.template.payload.SignInDTO;
 import com.auth.template.payload.SignUpDTO;
-import jakarta.validation.Valid;
+
+import java.util.List;
 
 public interface AuthService {
     JWTAuthResponse login(SignInDTO signInDTO);
 
     String register(SignUpDTO signUpDTO);
 
-    String addRoleToUser(@Valid RoleUpdateRequest roleUpdateRequest);
+    String addRoleToUser(RoleUpdateRequest roleUpdateRequest);
 
     String resetPassword(ResetPasswordRequest resetPasswordRequest);
 
     JWTAuthResponse refreshToken(String refreshToken);
 
     String addPermissionToUser(PermissionUpdateRequest permissionUpdateRequest);
+
+    List<?> getAllPermissions();
+
+    List<?> getAllRoles();
 }

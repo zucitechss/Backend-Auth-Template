@@ -49,7 +49,7 @@ public class AuthController {
                 .body(authService.login(signInDTO));
     }
 
-    @Operation(summary = "Add role to user", description = "Adds or removes roles for a user")
+    @Operation(summary = "Add role to user", description = "Adds or delete roles for a user")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Role updated successfully"),
         @ApiResponse(responseCode = "404", description = "User or role not found")
@@ -94,7 +94,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "Add permission to user", description = "Adds or removes permissions for a user")
+    @Operation(summary = "Add permission to user", description = "Adds or delete permissions for a user")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Permission updated successfully"),
         @ApiResponse(responseCode = "404", description = "User or permission not found")
@@ -108,5 +108,45 @@ public class AuthController {
                             .statusMsg(statusMsg)
                             .statusCode(HttpStatus.OK.value())
                             .build());
+    }
+
+    @Operation(summary = "Get all permissions", description = "Fetches all permissions from the database")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Permissions fetched successfully"),
+        @ApiResponse(responseCode = "404", description = "No permissions found")
+    })
+    @GetMapping("/getAllPermissions")
+    public ResponseEntity<?> getAllPermissions() {
+        try {
+            var permissions = authService.getAllPermissions();
+            if (permissions == null || permissions.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No permissions found.");
+            }
+            return ResponseEntity.ok(permissions);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while fetching permissions: " + ex.getMessage());
+        }
+    }
+
+    @Operation(summary = "Get all roles", description = "Fetches all roles from the database")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Roles fetched successfully"),
+        @ApiResponse(responseCode = "404", description = "No roles found")
+    })
+    @GetMapping("/getAllRoles")
+    public ResponseEntity<?> getAllRoles() {
+        try {
+            var roles = authService.getAllRoles();
+            if (roles == null || roles.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No roles found.");
+            }
+            return ResponseEntity.ok(roles);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while fetching roles: " + ex.getMessage());
+        }
     }
 }

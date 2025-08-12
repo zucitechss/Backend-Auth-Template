@@ -1,8 +1,6 @@
 package com.auth.template.security;
 
 
-import com.auth.template.entity.Permission;
-import com.auth.template.entity.Role;
 import com.auth.template.entity.User;
 import com.auth.template.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +25,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userNameOrEmail) throws UsernameNotFoundException {
         User user = userRepository.findByUserNameOrEmail(userNameOrEmail, userNameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email :" + userNameOrEmail));
-        // Add both roles and permissions as authorities
         Set<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority( role.getName()))
                 .collect(Collectors.toSet());

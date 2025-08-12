@@ -22,6 +22,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -108,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
                 user.setRoles(addedRole);
                 userRepository.save(user);
                 return "Role added successfully!";
-            case "REMOVE":
+            case "DELETE":
                 addedRole.stream()
                         .filter(r -> !user.getRoles().remove(r))
                         .collect(Collectors.toSet());
@@ -190,6 +191,24 @@ public class AuthServiceImpl implements AuthService {
         String newAccessToken = jwtTokenProvider.generateTokenFromUser(user);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
         return new JWTAuthResponse(newAccessToken, newRefreshToken, user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, user.isEmailVerified(), user.getPermissions());
+    }
+
+    @Override
+    public List<Permission> getAllPermissions() {
+        List<Permission> permissions = permissionRepository.findAll();
+        if (permissions == null || permissions.isEmpty()) {
+            throw new UsernameNotFoundException("No permissions found.");
+        }
+        return permissions;
+    }
+
+    @Override
+    public List<Role> getAllRoles() {
+        List<Role> roles = roleRepository.findAll();
+        if (roles == null || roles.isEmpty()) {
+            throw new UsernameNotFoundException("No roles found.");
+        }
+        return roles;
     }
 
 
