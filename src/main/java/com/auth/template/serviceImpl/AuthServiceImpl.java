@@ -118,7 +118,6 @@ public class AuthServiceImpl implements AuthService {
             default:
                 throw new IllegalArgumentException("Invalid action type: " + roleUpdateRequest.getAction());
         }
-
     }
 
     @Override
@@ -129,13 +128,12 @@ public class AuthServiceImpl implements AuthService {
         permissionUpdateRequest.getPermissions().forEach(permissionName -> {
             Permission permission = permissionRepository.findByName(permissionName.getName())
                     .orElseThrow(() -> new UsernameNotFoundException("Permission not found with name: " + permissionName));
-            permissionRepository.save(permission);
             addedPermissions.add(permission);
         });
 
         switch (permissionUpdateRequest.getAction()) {
             case "ADD":
-                user.setPermissions(addedPermissions);
+                user.getPermissions().addAll(addedPermissions);
                 userRepository.save(user);
                 return "Permission added successfully!";
             case "REMOVE":
