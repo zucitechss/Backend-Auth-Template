@@ -5,6 +5,7 @@ import com.auth.template.security.JwtAuthenticationEntryPoint;
 import com.auth.template.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,7 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -57,12 +57,14 @@ public class SecurityConfig {
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers("/api/auth/addPermission", "/api/auth/addRole", "/api/auth/getAllRoles", "/api/auth/getAllPermissions")
-                        .hasRole("ADMIN")
+                        .requestMatchers("/api/auth/addRole","/api/auth/addPermission")
+                        .hasAnyAuthority("role_create","role_delete")
+                        .requestMatchers("/api/auth/getAllRoles","/api/auth/getAllPermissions")
+                        .hasAuthority("role_view")
                         .requestMatchers("/api/users")
-                        .access(new WebExpressionAuthorizationManager(
-                                "hasAnyAuthority('user_view', 'user_edit', 'user_delete')"
-                        ))
+                        .hasAuthority("user_view")
+                        .requestMatchers(HttpMethod.PUT,"/api/users/**").hasAuthority("user_edit")
+                        .requestMatchers(HttpMethod.DELETE,"/api/users/**").hasAuthority("user_delete")
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
