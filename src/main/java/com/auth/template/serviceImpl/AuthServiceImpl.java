@@ -136,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
                 user.getPermissions().addAll(addedPermissions);
                 userRepository.save(user);
                 return "Permission added successfully!";
-            case "REMOVE":
+            case "DELETE":
                 addedPermissions.stream()
                         .filter(p -> !user.getPermissions().remove(p))
                         .collect(Collectors.toSet());
