@@ -60,11 +60,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/addRole","/api/auth/addPermission")
                         .hasAnyAuthority("role_create","role_delete")
                         .requestMatchers("/api/auth/getAllRoles","/api/auth/getAllPermissions")
-                        .hasAuthority("role_view")
-                        .requestMatchers("/api/users")
-                        .hasAuthority("user_view")
-                        .requestMatchers(HttpMethod.PUT,"/api/users/**").hasAuthority("user_edit")
-                        .requestMatchers(HttpMethod.DELETE,"/api/users/**").hasAuthority("user_delete")
+                        .hasAnyAuthority("role_view","role_delete","role_create")
+                        .requestMatchers("/api/users")// get all user
+                        .hasAnyAuthority("user_view","user_edit","user_delete","user_create")
+                        .requestMatchers(HttpMethod.DELETE,"/api/users/**").hasAnyAuthority("user_edit","user_delete","user_create") // delete user
+                        .requestMatchers(HttpMethod.PUT,"/api/users/**").hasAnyAuthority("user_edit","user_create")//update user
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
