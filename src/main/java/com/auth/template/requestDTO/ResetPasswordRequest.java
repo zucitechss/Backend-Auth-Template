@@ -1,4 +1,4 @@
-package com.auth.template.payload;
+package com.auth.template.requestDTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

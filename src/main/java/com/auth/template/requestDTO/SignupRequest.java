@@ -1,4 +1,4 @@
-package com.auth.template.payload;
+package com.auth.template.requestDTO;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -7,7 +7,7 @@ import lombok.*;
 
 @Getter
 @Setter
-public class SignUpDTO {
+public class SignupRequest {
     @NotEmpty(message = "Username should not be empty")
     @Size(min = 3, message = "Username should have at least 3 character")
     private String username;

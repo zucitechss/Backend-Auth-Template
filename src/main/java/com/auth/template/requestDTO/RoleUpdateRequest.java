@@ -1,14 +1,19 @@
-package com.auth.template.payload;
+package com.auth.template.requestDTO;
 
+import com.auth.template.entity.Role;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
 @Getter
 @Setter
-public class SignInDTO {
+@Builder
+public class RoleUpdateRequest {
     @NotEmpty(message = "This field is required it can not be empty")
-    private String userNameOrEmail;
+    private String action;
     @NotEmpty(message = "This field is required it can not be empty")
-    private String password;
+    private String userName;
+    private Set<Role> roles;
 }

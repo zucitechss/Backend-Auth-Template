@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"userName"}), @UniqueConstraint(columnNames = {"email"})})
-public class  User extends TimestampedEntity{
+public class  User extends BaseEntity {
     @Id
     private UUID id = UUID.randomUUID();
     @Column(unique = true, nullable = false)
