@@ -1,18 +1,18 @@
 package com.auth.template.service;
 
-import com.auth.template.payload.JWTAuthResponse;
-import com.auth.template.payload.PermissionUpdateRequest;
-import com.auth.template.payload.ResetPasswordRequest;
-import com.auth.template.payload.RoleUpdateRequest;
-import com.auth.template.payload.SignInDTO;
-import com.auth.template.payload.SignUpDTO;
+import com.auth.template.responseDTO.JWTAuthResponse;
+import com.auth.template.requestDTO.PermissionUpdateRequest;
+import com.auth.template.requestDTO.ResetPasswordRequest;
+import com.auth.template.requestDTO.RoleUpdateRequest;
+import com.auth.template.requestDTO.SigninRequest;
+import com.auth.template.requestDTO.SignupRequest;
 
 import java.util.List;
 
 public interface AuthService {
-    JWTAuthResponse login(SignInDTO signInDTO);
+    JWTAuthResponse login(SigninRequest signinRequest);
 
-    String register(SignUpDTO signUpDTO);
+    String register(SignupRequest signupRequest);
 
     String addRoleToUser(RoleUpdateRequest roleUpdateRequest);
 

@@ -2,6 +2,8 @@ package com.auth.template.controller;
 
 import com.auth.template.entity.User;
 import com.auth.template.payload.UserDTO;
+import com.auth.template.requestDTO.UserUpdateRequest;
+import com.auth.template.responseDTO.GenericResponse;
 import com.auth.template.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -35,13 +37,14 @@ public class UserController {
     }
 
     @PutMapping("/api/users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable UUID id, @RequestBody UserDTO updatedUser) {
+    public ResponseEntity<GenericResponse> updateUser(@PathVariable UUID id, @RequestBody UserUpdateRequest updatedUser) {
         try {
-            User user = userService.updateUser(id, updatedUser);
-            return ResponseEntity.ok(user);
+            String message = userService.updateUser(id, updatedUser);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(GenericResponse.builder().statusCode(HttpStatus.OK.value()).statusMsg(message).build());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("User not found or could not be updated: " + ex.getMessage());
+                    .body(GenericResponse.builder().statusCode(HttpStatus.NOT_FOUND.value()).statusMsg(ex.getMessage()).build());
         }
     }
 

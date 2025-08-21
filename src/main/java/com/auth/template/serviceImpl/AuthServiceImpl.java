@@ -3,10 +3,12 @@ package com.auth.template.serviceImpl;
 import com.auth.template.entity.Permission;
 import com.auth.template.entity.Role;
 import com.auth.template.entity.User;
-import com.auth.template.payload.*;
+import com.auth.template.mapper.UserMapper;
 import com.auth.template.repository.PermissionRepository;
 import com.auth.template.repository.RoleRepository;
 import com.auth.template.repository.UserRepository;
+import com.auth.template.requestDTO.*;
+import com.auth.template.responseDTO.JWTAuthResponse;
 import com.auth.template.security.JwtTokenProvider;
 import com.auth.template.service.AuthService;
 import com.auth.template.utils.EmailService;
@@ -49,8 +51,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public JWTAuthResponse login(SignInDTO signInDTO) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInDTO.getUserNameOrEmail(), signInDTO.getPassword()));
+    public JWTAuthResponse login(SigninRequest signinRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getUserNameOrEmail(), signinRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUserNameOrEmail(userName, userName).orElseThrow(() -> new UsernameNotFoundException("User not found with username or email :" + userName));
@@ -60,26 +62,22 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String register(SignUpDTO signUpDTO) {
-        if (userRepository.existsByUserName(signUpDTO.getUsername())) {
+    public String register(SignupRequest signupRequest) {
+        if (userRepository.existsByUserName(signupRequest.getUsername())) {
             return "UserName is already taken !..";
         }
-        if (userRepository.existsByEmail(signUpDTO.getEmail())) {
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
             return "Email is already taken !..";
         }
-        if (!signUpDTO.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+        if (!signupRequest.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             return "Invalid email format!";
         }
-        if (!signUpDTO.getPassword().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{5,}$")) {
+        if (!signupRequest.getPassword().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{5,}$")) {
             return "Password must be at least 5 characters long, contain upper and lower case letters, a digit, and a special character";
         }
 
-        User user = new User();
-        user.setUserName(signUpDTO.getUsername());
-        user.setFirstName(signUpDTO.getFirstName());
-        user.setLastName(signUpDTO.getLastName());
-        user.setEmail(signUpDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(signUpDTO.getPassword()));
+        User user =  UserMapper.mapToUser(signupRequest, new User());
+        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
         Role roles = roleRepository.findByName("ROLE_EMPLOYEE").orElseThrow(() -> new UsernameNotFoundException("Role not found with name: ROLE_EMPLOYEE"));
         user.setRoles(Collections.singleton(roles));
@@ -88,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPermissions(Collections.singleton(defaultPermission));
 
         userRepository.save(user);
-        emailService.sendSignupSuccessEmail(signUpDTO.getEmail(), signUpDTO.getUsername());
+        emailService.sendSignupSuccessEmail(signupRequest.getEmail(), signupRequest.getUsername());
         return "User registered successfully!";
     }
 

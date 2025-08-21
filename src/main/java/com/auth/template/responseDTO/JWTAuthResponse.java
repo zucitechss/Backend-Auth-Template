@@ -1,4 +1,4 @@
-package com.auth.template.payload;
+package com.auth.template.responseDTO;
 
 import com.auth.template.entity.Permission;
 import com.auth.template.entity.Role;

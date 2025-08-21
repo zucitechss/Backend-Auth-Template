@@ -1,6 +1,8 @@
 package com.auth.template.controller;
 
-import com.auth.template.payload.*;
+import com.auth.template.requestDTO.*;
+import com.auth.template.responseDTO.GenericResponse;
+import com.auth.template.responseDTO.JWTAuthResponse;
 import com.auth.template.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,11 +30,11 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping(value = {"/register"})
-    public ResponseEntity<Response> registerUser(@RequestBody @Valid SignUpDTO signUpDTO) {
+    public ResponseEntity<GenericResponse> registerUser(@RequestBody @Valid SignupRequest signupRequest) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.builder()
-                        .statusMsg(authService.register(signUpDTO))
+                .body(GenericResponse.builder()
+                        .statusMsg(authService.register(signupRequest))
                         .statusCode(HttpStatus.CREATED.value())
                         .build());
     }
@@ -43,10 +45,10 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "Invalid credentials")
     })
     @PostMapping(value = {"/login"})
-    public ResponseEntity<JWTAuthResponse> signIn(@RequestBody @Valid SignInDTO signInDTO) {
+    public ResponseEntity<JWTAuthResponse> signIn(@RequestBody @Valid SigninRequest signinRequest) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(authService.login(signInDTO));
+                .body(authService.login(signinRequest));
     }
 
     @Operation(summary = "Add role to user", description = "Adds or delete roles for a user")
@@ -55,11 +57,11 @@ public class AuthController {
         @ApiResponse(responseCode = "404", description = "User or role not found")
     })
     @PostMapping("/addRole")
-    public ResponseEntity<Response> addRoleToUser(@RequestBody @Valid RoleUpdateRequest roleUpdateRequest) {
+    public ResponseEntity<GenericResponse> addRoleToUser(@RequestBody @Valid RoleUpdateRequest roleUpdateRequest) {
          String statusMsg = authService.addRoleToUser(roleUpdateRequest);
           return ResponseEntity
                  .status(HttpStatus.OK)
-                 .body(Response.builder()
+                 .body(GenericResponse.builder()
                             .statusMsg(statusMsg)
                             .statusCode(HttpStatus.OK.value())
                             .build());
@@ -73,11 +75,11 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "Invalid OTP or password")
     })
     @PostMapping("/reset-password")
-    public ResponseEntity<Response> resetPassword(@RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
+    public ResponseEntity<GenericResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
         String statusMsg = authService.resetPassword(resetPasswordRequest);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.builder()
+                .body(GenericResponse.builder()
                         .statusMsg(statusMsg)
                         .statusCode(HttpStatus.OK.value())
                         .build());
@@ -100,11 +102,11 @@ public class AuthController {
         @ApiResponse(responseCode = "404", description = "User or permission not found")
     })
     @PostMapping("/addPermission")
-    public ResponseEntity<Response> addPermissionToUser(@RequestBody @Valid PermissionUpdateRequest permissionUpdateRequest) {
+    public ResponseEntity<GenericResponse> addPermissionToUser(@RequestBody @Valid PermissionUpdateRequest permissionUpdateRequest) {
          String statusMsg = authService.addPermissionToUser(permissionUpdateRequest);
           return ResponseEntity
                  .status(HttpStatus.OK)
-                 .body(Response.builder()
+                 .body(GenericResponse.builder()
                             .statusMsg(statusMsg)
                             .statusCode(HttpStatus.OK.value())
                             .build());
