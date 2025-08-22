@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/getAllRoles","/api/auth/getAllPermissions")
                         .hasAnyAuthority("role_view","role_delete","role_create")
                         .requestMatchers("/api/users")// get all user
-                        .hasAnyAuthority("user_view","user_edit","user_delete","user_create")
+                        .hasAnyAuthority("user_view","user_edit","user_delete","user_create","role_create","role_delete")
                         .requestMatchers(HttpMethod.DELETE,"/api/users/**").hasAnyAuthority("user_edit","user_delete","user_create") // delete user
                         .requestMatchers(HttpMethod.PUT,"/api/users/**").hasAnyAuthority("user_edit","user_create")//update user
                         .anyRequest().authenticated())

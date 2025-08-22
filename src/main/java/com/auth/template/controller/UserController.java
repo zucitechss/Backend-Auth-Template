@@ -1,7 +1,7 @@
 package com.auth.template.controller;
 
+import com.auth.template.constants.AppConstant;
 import com.auth.template.entity.User;
-import com.auth.template.payload.UserDTO;
 import com.auth.template.requestDTO.UserUpdateRequest;
 import com.auth.template.responseDTO.GenericResponse;
 import com.auth.template.service.UserService;
@@ -22,9 +22,9 @@ public class UserController {
     }
 
     @GetMapping("/api/users")
-    public ResponseEntity<?> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(@RequestParam(name = "pageNo", defaultValue = AppConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo, @RequestParam(name = "pageSize", defaultValue = AppConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize, @RequestParam(name = "sortBy", defaultValue = AppConstant.DEFAULT_SORT_BY, required = false) String sortBy, @RequestParam(name = "sortDir", defaultValue = AppConstant.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
         try {
-            List<User> users = userService.getAllUsers();
+            List<User> users = userService.getAllUsers(pageNo, pageSize, sortBy, sortDir);
             if (users == null || users.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("No users found.");
