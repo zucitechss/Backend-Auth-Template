@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    List<User> getAllUsers();
+    List<User> getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir);
     String updateUser(UUID id, UserUpdateRequest userUpdateRequest);
     void deleteUser(UUID id);
 }
