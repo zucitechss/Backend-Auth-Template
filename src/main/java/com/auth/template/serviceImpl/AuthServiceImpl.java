@@ -3,6 +3,7 @@ package com.auth.template.serviceImpl;
 import com.auth.template.entity.Permission;
 import com.auth.template.entity.Role;
 import com.auth.template.entity.User;
+import com.auth.template.exception.AuthException;
 import com.auth.template.mapper.UserMapper;
 import com.auth.template.repository.PermissionRepository;
 import com.auth.template.repository.RoleRepository;
@@ -12,6 +13,7 @@ import com.auth.template.responseDTO.JWTAuthResponse;
 import com.auth.template.security.JwtTokenProvider;
 import com.auth.template.service.AuthService;
 import com.auth.template.utils.EmailService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
 
     private static final int OTP_LENGTH = 6;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, EmailService emailService,PermissionRepository permissionRepository) {
+    public AuthServiceImpl(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, EmailService emailService, PermissionRepository permissionRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -58,25 +60,25 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUserNameOrEmail(userName, userName).orElseThrow(() -> new UsernameNotFoundException("User not found with username or email :" + userName));
         String accessToken = jwtTokenProvider.generateToken(authentication);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
-        return new JWTAuthResponse(accessToken,refreshToken,user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, user.isEmailVerified(), user.getPermissions());
+        return new JWTAuthResponse(accessToken, refreshToken, user.getId(), user.getUserName(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRoles(), true, user.isEmailVerified(), user.getPermissions());
     }
 
     @Override
     public String register(SignupRequest signupRequest) {
         if (userRepository.existsByUserName(signupRequest.getUsername())) {
-            return "UserName is already taken !..";
+            throw new AuthException(HttpStatus.BAD_REQUEST, "UserName is already taken !..");
         }
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            return "Email is already taken !..";
+            throw new AuthException(HttpStatus.BAD_REQUEST, "Email is already taken !..");
         }
         if (!signupRequest.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            return "Invalid email format!";
+            throw new AuthException(HttpStatus.BAD_REQUEST, "Invalid email format !..");
         }
         if (!signupRequest.getPassword().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{5,}$")) {
-            return "Password must be at least 5 characters long, contain upper and lower case letters, a digit, and a special character";
+            throw new AuthException(HttpStatus.BAD_REQUEST, "Password must be at least 5 characters long, contain upper and lower case letters, a digit, and a special character");
         }
 
-        User user =  UserMapper.mapToUser(signupRequest, new User());
+        User user = UserMapper.mapToUser(signupRequest, new User());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
         Role roles = roleRepository.findByName("ROLE_EMPLOYEE").orElseThrow(() -> new UsernameNotFoundException("Role not found with name: ROLE_EMPLOYEE"));
@@ -161,13 +163,13 @@ public class AuthServiceImpl implements AuthService {
 
         if (user.getResetOtp() == null || user.getResetOtpExpiry() == null ||
                 LocalDateTime.now().isAfter(user.getResetOtpExpiry())) {
-            return "OTP expired or not requested.";
+            throw new AuthException(HttpStatus.BAD_REQUEST, "OTP expired or not requested.");
         }
         if (!user.getResetOtp().equals(resetPasswordRequest.getOtp())) {
-            return "Invalid OTP.";
+            throw new AuthException(HttpStatus.BAD_REQUEST, "Invalid OTP.");
         }
         if (resetPasswordRequest.getNewPassword() == null || resetPasswordRequest.getNewPassword().isEmpty()) {
-            return "Please provide a new password.";
+            throw new AuthException(HttpStatus.BAD_REQUEST, "Please provide a new password.");
         }
         user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
         user.setResetOtp(null);
