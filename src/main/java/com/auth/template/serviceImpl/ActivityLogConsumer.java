@@ -4,7 +4,6 @@ import com.auth.template.entity.UserActivityLog;
 import com.auth.template.repository.UserActivityLogRepository;
 import com.auth.template.requestDTO.UserActivityEvent;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.BlockingQueue;
@@ -12,12 +11,13 @@ import java.util.concurrent.Executors;
 
 @Service
 public class ActivityLogConsumer {
+    private final BlockingQueue<UserActivityEvent> activityQueue;
+    private final UserActivityLogRepository repository;
 
-    @Autowired
-    private BlockingQueue<UserActivityEvent> activityQueue;
-
-    @Autowired
-    private UserActivityLogRepository repository;
+    public ActivityLogConsumer(BlockingQueue<UserActivityEvent> activityQueue, UserActivityLogRepository repository) {
+        this.activityQueue = activityQueue;
+        this.repository = repository;
+    }
 
     @PostConstruct
     public void startConsumer() {

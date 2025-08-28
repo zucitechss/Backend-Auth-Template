@@ -3,7 +3,6 @@ package com.auth.template.mapper;
 import com.auth.template.entity.User;
 import com.auth.template.requestDTO.SignupRequest;
 import com.auth.template.requestDTO.UserUpdateRequest;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
