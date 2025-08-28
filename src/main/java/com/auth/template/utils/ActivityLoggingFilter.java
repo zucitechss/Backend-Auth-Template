@@ -4,7 +4,6 @@ import com.auth.template.requestDTO.UserActivityEvent;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -14,8 +13,11 @@ import java.util.concurrent.BlockingQueue;
 @Component
 public class ActivityLoggingFilter implements Filter {
 
-    @Autowired
-    private BlockingQueue<UserActivityEvent> activityQueue;
+    private final BlockingQueue<UserActivityEvent> activityQueue;
+
+    public ActivityLoggingFilter(BlockingQueue<UserActivityEvent> activityQueue) {
+        this.activityQueue = activityQueue;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {

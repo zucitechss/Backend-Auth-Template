@@ -19,8 +19,11 @@ import java.io.IOException;
 @Tag(name = "Log Download Controller", description = "API for downloading application logs")
 public class LogDownloadController {
 
-    @Autowired
-    private LogDownloadService logDownloadService;
+    private final LogDownloadService logDownloadService;
+
+    public LogDownloadController(LogDownloadService logDownloadService) {
+        this.logDownloadService = logDownloadService;
+    }
 
     @Operation(summary = "Download logs", description = "Downloads the application log file as a resource")
     @ApiResponses(value = {

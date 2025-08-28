@@ -16,8 +16,11 @@ import java.util.List;
 @Service
 public class LogDownloadService {
 
-    @Autowired
-    private UserActivityLogRepository logRepository;
+    private final UserActivityLogRepository logRepository;
+
+    public LogDownloadService(UserActivityLogRepository logRepository) {
+        this.logRepository = logRepository;
+    }
 
     public ResponseEntity<Resource> downloadLogs() throws IOException {
         List<UserActivityLog> logs = logRepository.findAll();
