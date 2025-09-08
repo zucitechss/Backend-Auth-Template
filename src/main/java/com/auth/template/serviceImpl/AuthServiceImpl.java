@@ -1,5 +1,6 @@
 package com.auth.template.serviceImpl;
 
+import com.auth.template.constants.AppConstant;
 import com.auth.template.entity.Permission;
 import com.auth.template.entity.Role;
 import com.auth.template.entity.User;
@@ -13,6 +14,8 @@ import com.auth.template.responseDTO.JWTAuthResponse;
 import com.auth.template.security.JwtTokenProvider;
 import com.auth.template.service.AuthService;
 import com.auth.template.utils.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,6 +42,9 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
     private final PermissionRepository permissionRepository;
+
+    @Autowired
+    private AuditorAware<String> auditorAware;
 
     private static final int OTP_LENGTH = 6;
 
@@ -81,10 +87,10 @@ public class AuthServiceImpl implements AuthService {
         User user = UserMapper.mapToUser(signupRequest, new User());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
-        Role roles = roleRepository.findByName("ROLE_EMPLOYEE").orElseThrow(() -> new UsernameNotFoundException("Role not found with name: ROLE_EMPLOYEE"));
+        Role roles = roleRepository.findByName(AppConstant.ROLE_EMPLOYEE).orElseThrow(() -> new UsernameNotFoundException("Role not found with name: " + AppConstant.ROLE_EMPLOYEE));
         user.setRoles(Collections.singleton(roles));
 
-        Permission defaultPermission = permissionRepository.findByName("default_permission").orElseThrow(() -> new UsernameNotFoundException("Permission not found with name: default_permission"));
+        Permission defaultPermission = permissionRepository.findByName(AppConstant.PERMISSION_DEFAULT).orElseThrow(() -> new UsernameNotFoundException("Permission not found with name: " + AppConstant.PERMISSION_DEFAULT));
         user.setPermissions(Collections.singleton(defaultPermission));
 
         userRepository.save(user);
@@ -106,17 +112,15 @@ public class AuthServiceImpl implements AuthService {
 
         switch (roleUpdateRequest.getAction()) {
             case "ADD":
-                user.setRoles(addedRole);
+                user.getRoles().addAll(addedRole);
                 userRepository.save(user);
                 return "Role added successfully!";
             case "DELETE":
-                addedRole.stream()
-                        .filter(r -> !user.getRoles().remove(r))
-                        .collect(Collectors.toSet());
+                user.getRoles().removeAll(addedRole);
                 userRepository.save(user);
-                return "Role removed successfully!";
+                return "Role deleted successfully!";
             default:
-                throw new IllegalArgumentException("Invalid action type: " + roleUpdateRequest.getAction());
+                throw new IllegalArgumentException("Invalid action: " + roleUpdateRequest.getAction());
         }
     }
 
