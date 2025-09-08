@@ -2,9 +2,6 @@ package com.auth.template.serviceImpl;
 
 
 import com.auth.template.entity.User;
-import com.auth.template.mapper.UserMapper;
-import com.auth.template.repository.PermissionRepository;
-import com.auth.template.repository.RoleRepository;
 import com.auth.template.repository.UserRepository;
 import com.auth.template.requestDTO.UserUpdateRequest;
 import com.auth.template.service.UserService;
@@ -20,15 +17,11 @@ import java.util.*;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PermissionRepository permissionRepository;
-    private final ActivityLogConsumer activityLogger;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository, ActivityLogConsumer activityLogger) {
+
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.permissionRepository = permissionRepository;
-        this.activityLogger = activityLogger;
+
     }
 
     @Override
@@ -48,9 +41,10 @@ public class UserServiceImpl implements UserService {
     public String updateUser(UUID id, UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
-        User updatedUser = UserMapper.mapToUser(userUpdateRequest,user);
-        userRepository.save(updatedUser);
-
+        // Update only allowed fields
+        user.setFirstName(userUpdateRequest.getFirstName());
+        user.setLastName(userUpdateRequest.getLastName());
+        userRepository.save(user);
         return "User updated successfully";
     }
 

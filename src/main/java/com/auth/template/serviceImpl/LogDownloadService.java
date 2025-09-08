@@ -2,7 +2,6 @@ package com.auth.template.serviceImpl;
 
 import com.auth.template.entity.UserActivityLog;
 import com.auth.template.repository.UserActivityLogRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +24,7 @@ public class LogDownloadService {
     public ResponseEntity<Resource> downloadLogs() throws IOException {
         List<UserActivityLog> logs = logRepository.findAll();
 
-        File file = File.createTempFile("user_activity_log", ".txt");
+        File file = File.createTempFile("user_activity_log", ".log");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (UserActivityLog log : logs) {
                 String line = String.format("%s | %s | %s | %s | IP: %s%n",
@@ -37,7 +36,7 @@ public class LogDownloadService {
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_activity_log.txt")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=user_activity_log.log")
                 .contentType(MediaType.TEXT_PLAIN)
                 .contentLength(file.length())
                 .body(resource);

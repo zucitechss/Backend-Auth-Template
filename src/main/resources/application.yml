@@ -1,19 +1,14 @@
 server:
   port: ${SERVER_PORT:8080}
 spring:
-  application:
-    name: AuthenticationService
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/authentication_db
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Krishna}
-    driver-class-name: org.postgresql.Driver
-
+    url: jdbc:postgresql://b2b-webapp-postgre-db-dev.cbca0wk6w38y.ap-south-2.rds.amazonaws.com:5432/postgredb1
+    username: postgres
+    password: Tuesday2025$$
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-
   mail:
     host: ${EMAIL_HOST:smtp.gmail.com}
     port: ${EMAIL_PORT:587}
