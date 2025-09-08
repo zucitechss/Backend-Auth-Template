@@ -1,13 +1,13 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 spring:
   application:
     name: AuthenticationService
   datasource:
-    url: jdbc:mysql://localhost:3306/authentication_db?createDatabaseIfNotExist=true
-    username: root
-    password: krishna
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/authentication_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Krishna}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -15,10 +15,10 @@ spring:
     show-sql: true
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: XXXXXXXXXXXX # Replace with your actual email
-    password: XXXXXXXXXXXX # Replace with your actual password
+    host: ${EMAIL_HOST:smtp.gmail.com}
+    port: ${EMAIL_PORT:587}
+    username: ${MAIL_USERNAME:XXXXXXXXXXXXX}
+    password: ${MAIL_PASSWORD:XXXXXXXXXXXXX}
     properties:
       mail:
         smtp:
