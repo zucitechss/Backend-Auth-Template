@@ -56,7 +56,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "Role updated successfully"),
         @ApiResponse(responseCode = "404", description = "User or role not found")
     })
-    @PostMapping("/addRole")
+    @PostMapping("/addRoleToUser")
     public ResponseEntity<GenericResponse> addRoleToUser(@RequestBody @Valid RoleUpdateRequest roleUpdateRequest) {
          String statusMsg = authService.addRoleToUser(roleUpdateRequest);
           return ResponseEntity
@@ -101,7 +101,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "Permission updated successfully"),
         @ApiResponse(responseCode = "404", description = "User or permission not found")
     })
-    @PostMapping("/addPermission")
+    @PostMapping("/addPermissionToUser")
     public ResponseEntity<GenericResponse> addPermissionToUser(@RequestBody @Valid PermissionUpdateRequest permissionUpdateRequest) {
          String statusMsg = authService.addPermissionToUser(permissionUpdateRequest);
           return ResponseEntity
@@ -150,5 +150,39 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while fetching roles: " + ex.getMessage());
         }
+    }
+
+    @Operation(summary = "Add a new permission", description = "Creates a new permission in the database")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Permission added successfully"),
+        @ApiResponse(responseCode = "400", description = "Permission already exists or invalid input")
+    })
+    @PostMapping("/createPermission")
+    public ResponseEntity<GenericResponse> addPermission(@RequestBody @Valid PermissionCreateRequest permissionCreateRequest) {
+        String statusMsg = authService.addPermission(permissionCreateRequest);
+        HttpStatus status = statusMsg.contains("already exists") ? HttpStatus.BAD_REQUEST : HttpStatus.CREATED;
+        return ResponseEntity
+                .status(status)
+                .body(GenericResponse.builder()
+                        .statusMsg(statusMsg)
+                        .statusCode(status.value())
+                        .build());
+    }
+
+    @Operation(summary = "Delete a permission", description = "Deletes a permission from the database by ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Permission deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Permission not found")
+    })
+    @DeleteMapping("/deletePermission/{id}")
+    public ResponseEntity<GenericResponse> deletePermission(@PathVariable Long id) {
+        String statusMsg = authService.deletePermission(id);
+        HttpStatus status = statusMsg.contains("not found") ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+        return ResponseEntity
+            .status(status)
+            .body(GenericResponse.builder()
+                .statusMsg(statusMsg)
+                .statusCode(status.value())
+                .build());
     }
 }
