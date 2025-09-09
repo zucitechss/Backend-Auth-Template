@@ -213,6 +213,27 @@ public class AuthServiceImpl implements AuthService {
         return roles;
     }
 
+    @Override
+    public String addPermission(PermissionCreateRequest permissionCreateRequest) {
+        if (permissionRepository.findByName(permissionCreateRequest.getName()).isPresent()) {
+            return "Permission already exists";
+        }
+        Permission permission = new Permission();
+        permission.setName(permissionCreateRequest.getName());
+        permissionRepository.save(permission);
+        return "Permission added successfully";
+    }
+
+    @Override
+    public String deletePermission(Long permissionId) {
+        Permission permission = permissionRepository.findById(permissionId).orElse(null);
+        if (permission == null) {
+            return "Permission not found";
+        }
+        permissionRepository.delete(permission);
+        return "Permission deleted successfully";
+    }
+
 
     private String generateOtp() {
         SecureRandom random = new SecureRandom();

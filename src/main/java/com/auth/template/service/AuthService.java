@@ -1,6 +1,7 @@
 package com.auth.template.service;
 
 import com.auth.template.responseDTO.JWTAuthResponse;
+import com.auth.template.requestDTO.PermissionCreateRequest;
 import com.auth.template.requestDTO.PermissionUpdateRequest;
 import com.auth.template.requestDTO.ResetPasswordRequest;
 import com.auth.template.requestDTO.RoleUpdateRequest;
@@ -21,6 +22,10 @@ public interface AuthService {
     JWTAuthResponse refreshToken(String refreshToken);
 
     String addPermissionToUser(PermissionUpdateRequest permissionUpdateRequest);
+
+    String addPermission(PermissionCreateRequest permissionCreateRequest);
+
+    String deletePermission(Long permissionId);
 
     List<?> getAllPermissions();
 
