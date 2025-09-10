@@ -57,7 +57,7 @@ public class SecurityConfig {
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers("/api/auth/addRole","/api/auth/addPermission")
+                        .requestMatchers("/api/auth/createRole","/api/auth/deleteRole/*","api/auth/createPermission","/api/auth/deletePermission/*")
                         .hasAnyAuthority("role_create","role_delete")
                         .requestMatchers("/api/auth/getAllRoles","/api/auth/getAllPermissions")
                         .hasAnyAuthority("role_view","role_delete","role_create")
