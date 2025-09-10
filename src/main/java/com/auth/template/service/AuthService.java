@@ -4,6 +4,7 @@ import com.auth.template.responseDTO.JWTAuthResponse;
 import com.auth.template.requestDTO.PermissionCreateRequest;
 import com.auth.template.requestDTO.PermissionUpdateRequest;
 import com.auth.template.requestDTO.ResetPasswordRequest;
+import com.auth.template.requestDTO.RoleCreateRequest;
 import com.auth.template.requestDTO.RoleUpdateRequest;
 import com.auth.template.requestDTO.SigninRequest;
 import com.auth.template.requestDTO.SignupRequest;
@@ -30,4 +31,8 @@ public interface AuthService {
     List<?> getAllPermissions();
 
     List<?> getAllRoles();
+
+    String addRole(RoleCreateRequest roleCreateRequest);
+
+    String deleteRole(Long roleId);
 }

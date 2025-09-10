@@ -234,6 +234,26 @@ public class AuthServiceImpl implements AuthService {
         return "Permission deleted successfully";
     }
 
+    @Override
+    public String addRole(RoleCreateRequest roleCreateRequest) {
+        if (roleRepository.findByName(roleCreateRequest.getName()).isPresent()) {
+            return "Role already exists";
+        }
+        Role role = new Role();
+        role.setName(roleCreateRequest.getName());
+        roleRepository.save(role);
+        return "Role added successfully";
+    }
+
+    @Override
+    public String deleteRole(Long roleId) {
+        Role role = roleRepository.findById(roleId).orElse(null);
+        if (role == null) {
+            return "Role not found";
+        }
+        roleRepository.delete(role);
+        return "Role deleted successfully";
+    }
 
     private String generateOtp() {
         SecureRandom random = new SecureRandom();
