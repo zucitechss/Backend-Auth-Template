@@ -185,4 +185,38 @@ public class AuthController {
                 .statusCode(status.value())
                 .build());
     }
+
+    @Operation(summary = "Add a new role", description = "Creates a new role in the database")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Role added successfully"),
+        @ApiResponse(responseCode = "400", description = "Role already exists or invalid input")
+    })
+    @PostMapping("/createRole")
+    public ResponseEntity<GenericResponse> addRole(@RequestBody @Valid RoleCreateRequest roleCreateRequest) {
+        String statusMsg = authService.addRole(roleCreateRequest);
+        HttpStatus status = statusMsg.contains("already exists") ? HttpStatus.BAD_REQUEST : HttpStatus.CREATED;
+        return ResponseEntity
+            .status(status)
+            .body(GenericResponse.builder()
+                .statusMsg(statusMsg)
+                .statusCode(status.value())
+                .build());
+    }
+
+    @Operation(summary = "Delete a role", description = "Deletes a role from the database by ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Role deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Role not found")
+    })
+    @DeleteMapping("/deleteRole/{id}")
+    public ResponseEntity<GenericResponse> deleteRole(@PathVariable Long id) {
+        String statusMsg = authService.deleteRole(id);
+        HttpStatus status = statusMsg.contains("not found") ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+        return ResponseEntity
+            .status(status)
+            .body(GenericResponse.builder()
+                .statusMsg(statusMsg)
+                .statusCode(status.value())
+                .build());
+    }
 }
