@@ -86,9 +86,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // ✅ Replace wildcard with specific origins
-        configuration.addAllowedOrigin("http://localhost:5000");
-        configuration.addAllowedOrigin("http://98.130.134.68:44463");
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
