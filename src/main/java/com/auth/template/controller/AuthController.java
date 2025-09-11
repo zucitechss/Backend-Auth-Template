@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/auth/")
-@CrossOrigin("*")
 @Tag(name = "Authentication Controller", description = "APIs for user authentication and management")
 public class AuthController {
     private final AuthService authService;
