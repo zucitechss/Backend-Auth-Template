@@ -27,15 +27,16 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-    private final CorsConfigurationSource corsConfigurationSource;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationEntryPoint authenticationEntryPoint, CorsConfigurationSource corsConfigurationSource, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService,
+                          JwtAuthenticationEntryPoint authenticationEntryPoint,
+                          JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
-        this.corsConfigurationSource = corsConfigurationSource;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -53,23 +54,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.cors().configurationSource(corsConfigurationSource)
+        http.cors().configurationSource(corsConfigurationSource()) // CORS config applied
                 .and()
-                .csrf((csrf) -> csrf.disable())
-                .authorizeHttpRequests((requests) -> requests
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow preflight
                         .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers("/api/auth/createRole","/api/auth/deleteRole/*","api/auth/createPermission","/api/auth/deletePermission/*")
-                        .hasAnyAuthority("role_create","role_delete")
-                        .requestMatchers("/api/auth/getAllRoles","/api/auth/getAllPermissions")
-                        .hasAnyAuthority("role_view","role_delete","role_create")
-                        .requestMatchers("/api/users")// get all user
-                        .hasAnyAuthority("user_view","user_edit","user_delete","user_create","role_create","role_delete")
-                        .requestMatchers(HttpMethod.DELETE,"/api/users/**").hasAnyAuthority("user_edit","user_delete","user_create","role_create","role_delete") // delete user
-                        .requestMatchers(HttpMethod.PUT,"/api/users/**").hasAnyAuthority("user_edit","user_create","role_delete","role_create")//update user
-                        .anyRequest().authenticated())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        .requestMatchers("/api/users").hasAnyAuthority("user_view","user_edit","user_delete","user_create","role_create","role_delete")
+                        .requestMatchers(HttpMethod.DELETE,"/api/users/**").hasAnyAuthority("user_edit","user_delete","user_create","role_create","role_delete")
+                        .requestMatchers(HttpMethod.PUT,"/api/users/**").hasAnyAuthority("user_edit","user_create","role_delete","role_create")
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -85,17 +82,17 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
+    // Global CORS config for all origins, methods, headers, and credentials
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://98.130.134.68:44463")); // exact frontend origin
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setAllowedOriginPatterns(List.of("*")); // dynamic, works for any frontend URL
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 
