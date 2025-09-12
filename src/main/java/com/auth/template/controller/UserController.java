@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin(origins = "*")
 @Tag(name = "User Controller", description = "APIs for user management")
 public class UserController {
 
